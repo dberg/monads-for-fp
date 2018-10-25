@@ -2,7 +2,20 @@ package monadsforfp
 
 object Arrays {
 
+  case class ArrImpl[K, V](default: V, m: Map[K, V]) {
+    def get(k: K): V = m.get(k).getOrElse(default)
+    def put(k: K, v: V): ArrImpl[K, V] = ArrImpl[K, V](default, m + (k -> v))
+  }
+
   type Id = String
+  type Ix = Id
+  type Val = Int
+  type State = Arr
+  type Arr = ArrImpl[Id, Val]
+
+  def newarray(v: Val): Arr = ArrImpl[Id, Val](v, Map[Id, Val]())
+  def index(ix: Ix, arr: Arr): Val = arr.get(ix)
+  def update(ix: Ix, v: Val, arr: Arr): Arr = arr.put(ix, v)
 
   // Simple imperative language
   // A Term is variable | constant | sum of two terms
@@ -19,5 +32,12 @@ object Arrays {
 
   // A program is command followed by a term
   case class Prog(c: Comm, t: Term)
+
+  // interpreter
+  def eval(t: Term, s: State): Int = t match {
+    case Var(i) => index(i, s)
+    case Con(a) => a
+    case Add(t, u) => eval(t, s) + eval(u, s)
+  }
 
 }
