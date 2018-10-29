@@ -40,4 +40,13 @@ object Arrays {
     case Add(t, u) => eval(t, s) + eval(u, s)
   }
 
+  def exec(c: Comm, s: State): State = c match {
+    // TODO: update has to be done in place
+    case Asgn(i, t) => update(i, eval(t, s), s)
+    case Seq(c, d) => exec(d, exec(c, s))
+    case If(t, c, d) => if (eval(t, s) == 0) exec(c, s) else exec(d, s)
+  }
+
+  def elab(p: Prog): Int = eval(p.t, exec(p.c, newarray(0)))
+
 }
