@@ -14,6 +14,9 @@ object Main {
 
     // Laws
     Laws.run()
+
+    // Arrays
+    Arrays.run()
   }
 
 }
