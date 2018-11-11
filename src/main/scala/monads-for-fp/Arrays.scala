@@ -48,9 +48,20 @@ object Arrays {
 
   def elab(p: Prog): Int = eval(p.t, exec(p.c, newarray(0)))
 
+  // Array transformers
+  case class StateM[S, A](runS: S => (A, S))
+  type StateArr[A] = StateM[Arr, A]
+
+  implicit val stateMonad = new Monad[StateArr] {
+    def unit[A](a: A): StateArr[A] = StateM(s => (a, s))
+    def flatMap[A, B](fa: StateArr[A])(f: A => StateArr[B]): StateArr[B] = StateM({s =>
+      val (a, s2) = fa.runS(s)
+      f(a).runS(s2)
+    })
+  }
+
   def run(): Unit = {
     // Sample program 1
-    println("--------------------")
     println(runProgram1())
     println(runProgram2())
     println(runProgram3())
@@ -73,4 +84,5 @@ object Arrays {
     val p = Prog(c, Var("foo"))
     elab(p)
   }
+
 }
