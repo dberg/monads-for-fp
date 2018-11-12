@@ -1,5 +1,7 @@
 package monadsforfp
 
+import scala.language.higherKinds
+
 object Arrays {
 
   case class ArrImpl[K, V](default: V, m: Map[K, V]) {
@@ -52,12 +54,30 @@ object Arrays {
   case class StateM[S, A](runS: S => (A, S))
   type StateArr[A] = StateM[Arr, A]
 
-  implicit val stateMonad = new Monad[StateArr] {
+  trait MonadArr[F[_]] extends Monad[F] {
+    def block[A](v: Val, fa: F[A]): A
+    def fetch(ix: Ix): F[Val]
+    def assign(ix: Ix, v: Val): F[Unit]
+  }
+
+  implicit val arrMonad = new MonadArr[StateArr] {
     def unit[A](a: A): StateArr[A] = StateM(s => (a, s))
+
     def flatMap[A, B](fa: StateArr[A])(f: A => StateArr[B]): StateArr[B] = StateM({s =>
       val (a, s2) = fa.runS(s)
       f(a).runS(s2)
     })
+
+    def block[A](v: Val, fa: StateArr[A]): A = {
+      val (a, _) = fa.runS(newarray(v))
+      a
+    }
+
+    def fetch(ix: Ix): StateArr[Val] =
+      StateM[Arr, Val](x => (index(ix, x), x))
+
+    def assign(ix: Ix, v: Val): StateArr[Unit] =
+      StateM[Arr, Unit](x => ((), update(ix, v, x)))
   }
 
   def run(): Unit = {
