@@ -1,3 +1,4 @@
 # Monads for Functional Programming in Scala.
 
-See [http://daniberg.com/2018/10/02/monads-for-fp-in-scala.html](http://daniberg.com/2018/10/02/monads-for-fp-in-scala.html).
+See [Monads for Functional Programming in Scala](https://daniberg.com/posts/2018-10-02-monads-for-fp-in-scala/) and
+[Monads for Functional Programming in Scala part 2](https://daniberg.com/posts/2018-10-20-monads-for-fp-in-scala-part-2/).
